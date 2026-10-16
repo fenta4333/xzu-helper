@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="西藏大学学业助手：课表下载到本地查看、体测成绩计算、保研等文件在线查看。纯本地运行，数据不上传。">
+<meta name="theme-color" content="#12457f">
+<title>西藏大学学业助手</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231a5fb4'/><text y='72' x='50' font-size='58' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>藏</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+  <!-- ------------------------------------------------ 侧边导航 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-logo">
+        <span class="brand-mark">藏</span>
+        <span>西藏大学学业助手</span>
+      </div>
+      <div class="brand-sub">课表 · 体测 · 文件<br>全部数据只存在你的设备上</div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <a class="nav-item" data-page="home"><span class="nav-icon">🏠</span>首页</a>
+      <a class="nav-item" data-page="timetable"><span class="nav-icon">📅</span>我的课表</a>
+      <a class="nav-item" data-page="import"><span class="nav-icon">📥</span>导入课表</a>
+      <a class="nav-item" data-page="fitness"><span class="nav-icon">🏃</span>体测计算</a>
+      <a class="nav-item" data-page="standard"><span class="nav-icon">📊</span>评分标准</a>
+      <a class="nav-item" data-page="docs"><span class="nav-icon">📁</span>文件中心</a>
+      <a class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span>设置与备份</a>
+    </nav>
+
+    <div class="sidebar-foot">
+      本地优先 · 无需登录<br>
+      <span id="storage-info">-</span>
+    </div>
+  </aside>
+
+  <!-- ------------------------------------------------ 主区域 -->
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" id="menu-btn" title="菜单">☰</button>
+      <h1 id="page-title">首页</h1>
+      <div class="spacer"></div>
+      <span class="role-badge" id="role-badge" title="当前身份"></span>
+      <span class="topbar-sub" id="topbar-sub"></span>
+      <button class="btn btn-sm" id="auth-btn" style="display:none"></button>
+    </header>
+
+    <!-- 只读发布模式提示条 -->
+    <div class="readonly-bar" id="readonly-bar" style="display:none">
+      <span id="readonly-text"></span>
+    </div>
+
+    <main class="content" id="content">
+
+      <!-- ======================= 首页 ======================= -->
+      <section class="page active" id="page-home">
+        <div class="card">
+          <h2 class="mt-0">欢迎使用西藏大学学业助手</h2>
+          <p class="muted">
+            这是一个<strong>完全在本地运行</strong>的学业工具站：课表下载到本地随时查看、体测成绩自动算分、
+            保研推免等文件在线翻阅检索。不需要注册、不需要联网、不会把你的任何数据传出去。
+          </p>
+          <div class="btn-row">
+            <button class="btn btn-primary" data-goto="import">📥 导入我的课表</button>
+            <button class="btn" data-goto="fitness">🏃 算一算体测</button>
+            <button class="btn" data-goto="docs">📁 查看文件中心</button>
+          </div>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="card mb-0">
+            <h3>📅 课表本地化</h3>
+            <p class="small muted mb-1">
+              从教务系统复制粘贴、导入 CSV/Excel 导出文件，或直接载入示例。
+              生成一张可离线打开的课表，支持按周筛选、导出 JSON / 图片 / 打印。
+            </p>
+            <button class="btn btn-sm" data-goto="timetable">打开课表 →</button>
+          </div>
+          <div class="card mb-0">
+            <h3>🏃 体测算分</h3>
+            <p class="small muted mb-1">
+              按《国家学生体质健康标准》大学组自动计算标准分、加分、总分与等级，
+              并提示距离下一等级还差多少分。
+            </p>
+            <button class="btn btn-sm" data-goto="fitness">开始计算 →</button>
+          </div>
+          <div class="card mb-0">
+            <h3>📁 文件中心</h3>
+            <p class="small muted mb-1">
+              把保研推免、评奖评优、学籍管理等文件集中归档，支持分类筛选、
+              关键词检索，PDF/图片在线预览，文本文件直接阅读。
+            </p>
+            <button class="btn btn-sm" data-goto="docs">打开文件中心 →</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>当前状态</h3>
+          <div id="home-status" class="grid grid-4"></div>
+        </div>
+
+        <div class="card">
+          <h3>⚠️ 使用前请知悉</h3>
+          <ul class="small muted" style="margin:0;padding-left:20px;line-height:1.9">
+            <li>本站<strong>不是西藏大学官方系统</strong>，所有功能均为本地计算与整理工具。</li>
+            <li>体测评分依据<strong>国家标准</strong>计算，仅供参考；学校若有补充规定（如免测、缓测、替代项目），
+              以学校体育部门和教务处发布的通知为准。</li>
+            <li>课表与文件由你自行导入，导入前请确认内容准确；政策类文件请以<strong>校方发布的正式版本</strong>为准。</li>
+            <li>数据保存在浏览器本地存储中。清理浏览器数据会一并清除，请定期到
+              <a href="#" data-goto="settings">设置与备份</a> 导出备份。</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ====================== 我的课表 ====================== -->
+      <section class="page" id="page-timetable">
+        <div id="tt-empty" class="card" style="display:none">
+          <div class="empty">
+            <div class="icon">📅</div>
+            <h3>还没有课表</h3>
+            <p class="small">导入一份课表后，这里会显示你的周课表，并可导出到本地离线查看。</p>
+            <div class="btn-row" style="justify-content:center">
+              <button class="btn btn-primary" data-goto="import">📥 导入课表</button>
+              <button class="btn" id="tt-load-sample">载入示例课表试试</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="tt-main" style="display:none">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3 id="tt-term">课表</h3>
+                <div class="card-sub" id="tt-meta"></div>
+              </div>
+              <div class="spacer"></div>
+              <div class="btn-row">
+                <button class="btn btn-sm" id="tt-export-json">⬇ 导出 JSON</button>
+                <button class="btn btn-sm" id="tt-export-csv">⬇ 导出 CSV</button>
+                <button class="btn btn-sm" id="tt-export-html">⬇ 导出离线网页</button>
+                <button class="btn btn-sm" id="tt-export-png">🖼 导出图片</button>
+                <button class="btn btn-sm" id="tt-print">🖨 打印</button>
+                <button class="btn btn-sm btn-danger" id="tt-clear">清空</button>
+              </div>
+            </div>
+
+            <div class="tt-toolbar">
+              <button class="btn btn-sm" id="tt-prev">← 上一周</button>
+              <select id="tt-week-select" style="width:auto;min-width:130px"></select>
+              <button class="btn btn-sm" id="tt-next">下一周 →</button>
+              <button class="btn btn-sm" id="tt-this-week">回到本周</button>
+              <div class="spacer" style="flex:1"></div>
+              <label class="checkbox-row"><input type="checkbox" id="tt-show-all-weeks"> 显示全部周次</label>
+              <label class="checkbox-row"><input type="checkbox" id="tt-hide-weekend"> 隐藏周末</label>
+            </div>
+
+            <div id="tt-alert"></div>
+            <div class="tt-grid-wrap">
+              <div id="tt-grid"></div>
+            </div>
+            <div class="tt-legend" id="tt-legend"></div>
+          </div>
+
+          <div class="grid grid-2">
+            <div class="card mb-0">
+              <div class="card-head"><h3>本学期课程</h3><div class="spacer"></div>
+                <span class="tag" id="tt-course-count"></span></div>
+              <div id="tt-course-list" style="max-height:420px;overflow:auto"></div>
+            </div>
+            <div class="card mb-0">
+              <div class="card-head"><h3>周次概览</h3></div>
+              <div id="tt-week-overview" class="scroll-x"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================== 导入课表 ====================== -->
+      <section class="page" id="page-import">
+        <div class="card">
+          <h3>方式一：粘贴文本导入</h3>
+          <p class="small muted">
+            从教务系统网页上<strong>直接框选复制</strong>课程表区域，粘贴到下面即可。
+            也支持 CSV / TSV（制表符）文本，会自动识别表头。
+          </p>
+          <div class="field">
+            <label>课表文本</label>
+            <textarea id="import-text" rows="10" placeholder="课程名称,教师,星期,节次,周次,上课地点
+高等数学,张老师,周一,1-2节,1-16周,教学楼A101
+大学英语,李老师,周三,3-4节,1-16周(单),外语楼B203
+
+也可以直接粘贴每行一门课、或用空行分隔的块状文本。"></textarea>
+            <div class="hint">
+              支持的列名：课程名称 / 课程、教师 / 老师、星期 / 周几、节次 / 时间、周次 / 上课周次、地点 / 教室。
+              列的顺序可以任意，缺少表头时会按上述顺序尝试解析。
+            </div>
+          </div>
+          <div class="inline-fields mb-2">
+            <div class="field" style="max-width:180px">
+              <label>学期名称</label>
+              <input type="text" id="import-term" placeholder="如 2025—2026学年 第一学期">
+            </div>
+            <div class="field" style="max-width:170px">
+              <label>开学日期（周一）</label>
+              <input type="date" id="import-start">
+            </div>
+            <div class="field" style="max-width:130px">
+              <label>总周数</label>
+              <input type="number" id="import-total-weeks" value="18" min="1" max="30">
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="import-parse">解析预览</button>
+            <button class="btn" id="import-sample-text">填入格式示例</button>
+            <button class="btn" id="import-clear-text">清空</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>方式二：导入文件</h3>
+          <p class="small muted">支持 .json（本站导出格式）、.csv、.txt。文件只在你本地读取，不会被上传。</p>
+          <div class="btn-row">
+            <button class="btn" id="import-file-btn">选择文件…</button>
+            <input type="file" id="import-file" accept=".json,.csv,.txt,.tsv" style="display:none">
+            <button class="btn" id="import-load-sample">载入示例课表</button>
+          </div>
+        </div>
+
+        <div class="card" id="import-result" style="display:none">
+          <div class="card-head">
+            <h3>解析结果</h3>
+            <div class="spacer"></div>
+            <button class="btn btn-primary btn-sm" id="import-save">✓ 保存到我的课表</button>
+          </div>
+          <div id="import-messages"></div>
+          <div class="scroll-x"><div id="import-preview"></div></div>
+        </div>
+      </section>
+
+      <!-- ====================== 体测计算 ====================== -->
+      <section class="page" id="page-fitness">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3>体测成绩计算</h3>
+              <div class="card-sub">依据《国家学生体质健康标准（2014年修订）》大学组</div>
+            </div>
+            <div class="spacer"></div>
+            <button class="btn btn-sm" data-goto="standard">查看评分标准表 →</button>
+          </div>
+
+          <div class="inline-fields mb-2">
+            <div class="field" style="max-width:140px">
+              <label>性别</label>
+              <select id="fit-gender">
+                <option value="male">男</option>
+                <option value="female">女</option>
+              </select>
+            </div>
+            <div class="field" style="max-width:150px">
+              <label>年级</label>
+              <select id="fit-grade">
+                <option value="1">大一</option>
+                <option value="2">大二</option>
+                <option value="3">大三</option>
+                <option value="4">大四</option>
+              </select>
+            </div>
+            <div class="field" style="max-width:150px">
+              <label>身高（厘米）</label>
+              <input type="number" id="fit-height" placeholder="如 170" step="0.1" min="100" max="250">
+            </div>
+            <div class="field" style="max-width:150px">
+              <label>体重（千克）</label>
+              <input type="number" id="fit-weight" placeholder="如 60" step="0.1" min="20" max="200">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>各项成绩</h3>
+          <div class="grid grid-3" id="fit-inputs"></div>
+          <div class="btn-row" style="margin-top:14px">
+            <button class="btn btn-primary" id="fit-calc">计算成绩</button>
+            <button class="btn" id="fit-reset">清空</button>
+            <button class="btn" id="fit-demo">填入示例数据</button>
+          </div>
+        </div>
+
+        <div id="fit-result"></div>
+      </section>
+
+      <!-- ====================== 评分标准 ====================== -->
+      <section class="page" id="page-standard">
+        <div class="card">
+          <div class="card-head">
+            <h3>《国家学生体质健康标准》大学组</h3>
+            <div class="spacer"></div>
+            <div class="btn-row">
+              <select id="std-gender" style="width:auto">
+                <option value="male">男生</option>
+                <option value="female">女生</option>
+              </select>
+              <select id="std-band" style="width:auto">
+                <option value="low">大一 / 大二</option>
+                <option value="high">大三 / 大四</option>
+              </select>
+              <button class="btn btn-sm" id="std-export-csv">⬇ 导出 CSV</button>
+            </div>
+          </div>
+          <div class="alert alert-info">
+            <strong>计分规则：</strong>
+            标准分 = Σ（单项得分 × 权重）÷ 100，满分 100 分；加分仅限男生引体向上 / 1000 米跑、
+            女生 1 分钟仰卧起坐 / 800 米跑，每项最多加 10 分，合计最多 20 分。
+            学年总分 = 标准分 + 加分，满分 120 分。
+            等级：<span class="grade-excellent">90 分及以上优秀</span>、
+            <span class="grade-good">80～89.9 良好</span>、
+            <span class="grade-pass">60～79.9 及格</span>、
+            <span class="grade-fail">59.9 及以下不及格</span>。
+          </div>
+          <div id="std-table" class="scroll-x"></div>
+        </div>
+
+        <div class="card">
+          <h3>单项权重</h3>
+          <div class="scroll-x"><div id="std-weights"></div></div>
+        </div>
+
+        <div class="card">
+          <h3>加分标准</h3>
+          <div class="scroll-x"><div id="std-bonus"></div></div>
+          <p class="small muted mb-0">
+            注：表中「超出幅度」指超过 100 分标准的次数，或比 100 分标准快的秒数。
+          </p>
+        </div>
+      </section>
+
+      <!-- ====================== 文件中心 ====================== -->
+      <section class="page" id="page-docs">
+        <div class="card">
+          <div class="card-head">
+            <h3>文件中心</h3>
+            <div class="spacer"></div>
+            <div class="btn-row">
+              <!-- 管理员专用操作区：普通用户看不到这些按钮 -->
+              <span class="admin-only" id="doc-admin-actions" style="display:none">
+                <button class="btn btn-sm" id="doc-add-text">＋ 新建文本</button>
+                <button class="btn btn-sm" id="doc-add-link">＋ 添加链接</button>
+                <button class="btn btn-sm btn-primary" id="doc-add-file">＋ 导入文件</button>
+                <input type="file" id="doc-file" multiple style="display:none">
+                <button class="btn btn-sm" id="doc-export">⬇ 导出目录</button>
+              </span>
+              <button class="btn btn-sm" id="doc-admin-login" style="display:none">🔒 管理员登录</button>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:12px">
+            <input type="search" id="doc-search" placeholder="🔍 搜索标题、标签、说明、正文内容…">
+          </div>
+
+          <div class="chip-row" id="doc-filters"></div>
+
+          <div id="doc-alert"></div>
+          <div class="doc-list" id="doc-list"></div>
+        </div>
+      </section>
+
+      <!-- ====================== 设置 ====================== -->
+      <section class="page" id="page-settings">
+        <div class="card">
+          <h3>课表设置</h3>
+          <div class="inline-fields mb-2">
+            <div class="field" style="max-width:220px">
+              <label>学期名称</label>
+              <input type="text" id="set-term" placeholder="2025—2026学年 第一学期">
+            </div>
+            <div class="field" style="max-width:180px">
+              <label>开学日期（周一）</label>
+              <input type="date" id="set-start-date">
+            </div>
+            <div class="field" style="max-width:140px">
+              <label>总周数</label>
+              <input type="number" id="set-total-weeks" min="1" max="30">
+            </div>
+            <div class="field" style="max-width:160px">
+              <label>每天节数</label>
+              <input type="number" id="set-sections-per-day" min="4" max="16">
+            </div>
+          </div>
+          <button class="btn btn-primary" id="set-save">保存设置</button>
+        </div>
+
+        <div class="card">
+          <h3>数据备份与恢复</h3>
+          <p class="small muted">
+            所有数据都存放在这个浏览器的本地存储里。<strong>清除浏览器数据、换浏览器或换设备都会丢失</strong>，
+            建议定期导出备份文件保存到网盘或本地磁盘。
+          </p>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="backup-export">⬇ 导出完整备份（JSON）</button>
+            <button class="btn" id="backup-import-btn">⬆ 从备份恢复</button>
+            <input type="file" id="backup-import" accept=".json" style="display:none">
+            <button class="btn btn-danger" id="data-clear">🗑 清除全部本地数据</button>
+          </div>
+          <div class="divider"></div>
+          <div id="storage-detail" class="small muted"></div>
+        </div>
+
+        <div class="card admin-only" id="card-publish" style="display:none">
+          <h3>📤 发布给同学（生成只读版本）</h3>
+          <p class="small muted">
+            普通访问者不能上传文件。要让文件出现在同学那里，流程是：
+            <strong>① 你在这里导入好全部文件 → ② 导出文件数据包 → ③ 打包成只读版本 → ④ 把文件夹发给同学</strong>。
+            打包出来的版本里<strong>不含任何上传功能和管理员代码</strong>，任何人都无法往里加文件。
+          </p>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="pack-export-docs">① 导出文件数据包（JSON）</button>
+            <button class="btn" id="pack-copy-cmd">② 复制打包命令</button>
+          </div>
+          <div class="divider"></div>
+          <p class="small muted mb-1">打包命令（在项目目录下执行）：</p>
+          <pre class="cmd-block" id="pack-cmd">node tools/pack.mjs --hard --docs=文件数据包.json</pre>
+          <p class="small muted" style="margin:10px 0 0">
+            执行后会生成 <code>dist/</code> 目录，把它整个拷给同学即可（双击 <code>index.html</code> 就能用）。
+            打包过程会自动校验发布版里不含 <code>doc-add-file</code>、<code>auth-btn</code> 等上传相关代码，校验不通过会直接报错。
+          </p>
+        </div>
+
+        <div class="card admin-only" id="card-security" style="display:none">
+          <h3>🔒 管理员与权限</h3>
+          <p class="small muted">
+            文件中心的上传、编辑、删除只对管理员开放，普通访问者只能浏览和检索。
+          </p>
+          <div class="alert alert-warn" id="auth-security-note">
+            <strong>请注意静态网站权限的固有限制：</strong>
+            本站没有服务端，这套密码保护能挡住界面上的误操作和随手点击，
+            但<strong>挡不住会打开浏览器开发者工具的人</strong>。
+            要做到不可绕过，需要使用工具里的 <code>--hard</code> 参数打包成只读版本发放，
+            那样发布出去的站点里根本不含上传功能和管理员代码。详见 README。
+          </div>
+
+          <div id="auth-status-box"></div>
+
+          <div class="inline-fields mb-2" id="auth-setup-box">
+            <div class="field" style="max-width:200px">
+              <label id="auth-pwd-label">设置管理员密码</label>
+              <input type="password" id="auth-new-pwd" placeholder="至少 4 位" autocomplete="new-password">
+            </div>
+            <div class="field" id="auth-old-pwd-field" style="max-width:200px;display:none">
+              <label>原密码</label>
+              <input type="password" id="auth-old-pwd" placeholder="修改时需填写" autocomplete="current-password">
+            </div>
+            <div class="field" style="max-width:200px">
+              <label>确认密码</label>
+              <input type="password" id="auth-new-pwd2" placeholder="再输一次" autocomplete="new-password">
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="auth-save-pwd">保存密码</button>
+            <button class="btn" id="auth-logout" style="display:none">退出管理员登录</button>
+            <button class="btn btn-danger" id="auth-remove-pwd" style="display:none">取消密码保护</button>
+          </div>
+          <p class="small muted" style="margin:12px 0 0">
+            忘记密码怎么办：密码以加盐哈希保存在本机浏览器里，无法找回。
+            可以点「取消密码保护」以外的办法——直接清除浏览器本地数据，
+            然后重新设置。已导入的文件会一并清空，请先导出一份备份。
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>关于</h3>
+          <p class="small muted mb-1">
+            西藏大学学业助手 · 本地优先的学业工具站。<br>
+            课表解析、体测评分、文件检索全部在浏览器内完成，不发起任何网络请求。
+          </p>
+          <p class="small muted mb-0">
+            体测数据依据《国家学生体质健康标准（2014年修订）》大学组评分表实现，
+            已通过 83 项单元测试校验。学校若有补充规定，以校方通知为准。
+          </p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- 脚本：按依赖顺序加载 -->
+<script src="js/core/utils.js"></script>
+<script src="js/core/store.js"></script>
+<script src="js/core/sha256.js"></script>
+<script src="js/data/published.js"></script>
+  <script src="js/data/admin.js"></script>
+<script src="js/data/fitness-standard.js"></script>
+<script src="js/data/sample-timetable.js"></script>
+<script src="js/data/sample-docs.js"></script>
+<script src="js/modules/auth.js"></script>
+<script src="js/modules/fitness-engine.js"></script>
+<script src="js/modules/timetable-parser.js"></script>
+<script src="js/modules/timetable-view.js"></script>
+<script src="js/modules/fitness-view.js"></script>
+<script src="js/modules/docs-view.js"></script>
+<script src="js/modules/auth-view.js"></script>
+<script src="js/modules/settings-view.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

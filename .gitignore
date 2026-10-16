@@ -1,0 +1,11 @@
+# 依赖
+node_modules/
+
+# 打包产物（用 tools/pack.mjs 生成，不要提交）
+dist/
+dist-soft/
+dist-*/
+
+# 打包时用的临时数据包
+文件数据包_*.json
+tmp-docs-pack.json

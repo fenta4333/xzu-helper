@@ -1,0 +1,24 @@
+{
+  "name": "xzu-helper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "西藏大学学业助手 —— 纯静态离线的课表 / 体测 / 文件中心工具",
+  "scripts": {
+    "serve": "node tools/serve.mjs",
+    "test": "npm run test:sha256 && npm run test:fitness && npm run test:timetable && npm run test:dom && npm run test:source && npm run test:readonly && npm run test:deploy",
+    "test:sha256": "node tools/test-sha256.mjs",
+    "test:fitness": "node tools/test-fitness.mjs",
+    "test:timetable": "node tools/test-timetable.mjs",
+    "test:dom": "node tools/test-dom.mjs",
+    "test:source": "node tools/test-source-load.mjs",
+    "test:readonly": "node tools/pack.mjs --mode=hard && node tools/pack.mjs --mode=soft --out=dist-soft && node tools/test-readonly.mjs",
+    "pack": "node tools/pack.mjs --mode=soft",
+    "pack:hard": "node tools/pack.mjs --mode=hard",
+    "gen": "node tools/gen-fitness-data.mjs && node tools/gen-sample-data.mjs",
+    "test:deploy": "node tools/test-deploy.mjs",
+    "pack:pages": "node tools/pack.mjs --mode=soft --out=dist"
+  },
+  "devDependencies": {
+    "jsdom": "^27.0.0"
+  }
+}
